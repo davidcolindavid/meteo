@@ -147,7 +147,12 @@ class _MeteoScreenState extends State<MeteoScreen> {
         child: Column(
           children: [
             Expanded(child: getMeteo()),
-            SafeArea(child: getLoading())
+            Column(
+              children: [
+                Text('Chargement de votre météo'),
+                SafeArea(child: getLoading())
+              ]
+            ),
           ]
         )
       )
