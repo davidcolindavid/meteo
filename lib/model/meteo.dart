@@ -1,16 +1,19 @@
 class Meteo {
   String name;
   Main main;
+  List<Weather> weather;
 
   Meteo({
     required this.name,
     required this.main,
+    required this.weather,
   });
 
   factory Meteo.fromJson(Map<String, dynamic> json) {
     return Meteo(
       name: json['name'],
       main: Main.fromJson(json['main']),
+      weather: (json['weather'] as List).map((i) => Weather.fromJson(i)).toList()
     );
   }
 }
@@ -40,6 +43,23 @@ class Main {
       tempMax: json['temp_max'],
       pressure: json['pressure'],
       humidity: json['humidity'],
+    );
+  }
+}
+
+class Weather {
+  final String main;
+  final String description;
+
+  const Weather({
+    required this.main,
+    required this.description,
+  });
+
+  factory Weather.fromJson(Map<String, dynamic> json) {
+    return Weather(
+      main: json['main'],
+      description: json['description'],
     );
   }
 }

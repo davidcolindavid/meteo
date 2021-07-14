@@ -6,7 +6,7 @@ import '../model/meteo.dart';
 
 class MeteoApi {
   // get town
-  static Future<dynamic> getMeteo(town) async {
+  static Future<Meteo> getMeteo(town) async {
     final response = await http.Client().get(
       Uri.parse('https://api.openweathermap.org/data/2.5/weather?q=$town&appid=499f83b1699676a4fd1afa6569c3cfb9')
     );

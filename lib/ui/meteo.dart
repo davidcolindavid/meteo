@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../api/meteo.dart';
+import '../model/meteo.dart';
 
 class MeteoScreen extends StatefulWidget {
   MeteoScreen({Key? key, required this.title}) : super(key: key);
@@ -14,18 +15,19 @@ class MeteoScreen extends StatefulWidget {
 class _MeteoScreenState extends State<MeteoScreen> {
   double _progress = 0;
   int maxSeconds = 60;
-  late Future rennes;
-  late Future paris;
-  late Future nantes;
-  late Future bordeaux;
-  late Future lyon;
-  List townsList = [];
+  late Future<Meteo> rennes;
+  late Future<Meteo> paris;
+  late Future<Meteo> nantes;
+  late Future<Meteo> bordeaux;
+  late Future<Meteo> lyon;
+  List<Future<Meteo>> townsList = [];
   List waitingMessages = [
     'Nous téléchargeons les données...',
     'C\'est presque fini...',
     'Plus que quelques secondes avant d\'avoir le résultat'
   ];
   late String currentWaitingMessages;
+  EdgeInsets paddingTableRow = EdgeInsets.all(8);
 
   void reset() {
     setState(() {
@@ -88,25 +90,51 @@ class _MeteoScreenState extends State<MeteoScreen> {
 
   Widget getMeteo() {
     if (_progress == maxSeconds) {
-      return Column(children: 
-        townsList.map((town) => 
-          FutureBuilder(
-            future: town,
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              if (snapshot.hasData) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(snapshot.data.name),
-                    Text(snapshot.data.main.temp.toString()),
-                  ]
-                );
-              }
-              return Container();
-            }
-          ), 
-        ).toList()
-      );
+      return Table(
+        border: TableBorder(horizontalInside: BorderSide()),
+        children: List<TableRow>.generate(townsList.length, (i) {
+          return TableRow(
+            children: [
+              FutureBuilder<Meteo>(
+                future: townsList[i],
+                builder: (context, snapshot) {
+                  if (snapshot.hasData)
+                    return Padding(
+                      padding: paddingTableRow,
+                      child: Text(snapshot.data!.name)
+                    );
+
+                  return Container();
+                },
+              ),
+              FutureBuilder<Meteo>(
+                future: townsList[i],
+                builder: (context, snapshot) {
+                  if (snapshot.hasData)
+                    return Padding(
+                      padding: paddingTableRow,
+                      child: Text(snapshot.data!.main.temp.toString())
+                    );
+
+                  return Container();
+                },
+              ),
+              FutureBuilder<Meteo>(
+                future: townsList[i],
+                builder: (context, snapshot) {
+                  if (snapshot.hasData)
+                    return Padding(
+                      padding: paddingTableRow,
+                      child: Text(snapshot.data!.weather[0].main)
+                    );
+
+                  return Container();
+                },
+              )
+            ]
+          );
+        })
+      ); 
     }
 
     return Text(currentWaitingMessages);
@@ -149,7 +177,7 @@ class _MeteoScreenState extends State<MeteoScreen> {
             Expanded(child: getMeteo()),
             Column(
               children: [
-                Text('Chargement de votre météo'),
+                Text('Météo dans 5 villes de France'),
                 SafeArea(child: getLoading())
               ]
             ),
